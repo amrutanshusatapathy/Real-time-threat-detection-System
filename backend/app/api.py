@@ -38,11 +38,16 @@ def create_alert_endpoint(payload: AlertCreate) -> AlertOut:
     from .repository import create_alert as db_create_alert
     from .streaming import publish_live_alert, xadd_alert
 
-    redis = get_redis()
+    redis = None
+    try:
+        redis = get_redis()
+    except Exception:
+        redis = None
 
     blocked = False
     if payload.severity in ("HIGH", "CRITICAL"):
-        redis.sadd(settings.blocklist_set, payload.src_ip)
+        if redis is not None:
+            redis.sadd(settings.blocklist_set, payload.src_ip)
         blocked = True
 
     with db_session() as session:
@@ -50,9 +55,10 @@ def create_alert_endpoint(payload: AlertCreate) -> AlertOut:
 
     out = _to_alert_out(a)
 
-    data = out.model_dump()
-    xadd_alert(redis, data)
-    publish_live_alert(redis, data)
+    if redis is not None:
+        data = out.model_dump()
+        xadd_alert(redis, data)
+        publish_live_alert(redis, data)
 
     return out
 
@@ -80,7 +86,7 @@ def get_network_stats() -> NetworkStatsOut:
         pps = int(redis.get("net:pps") or 0)
         bw = float(redis.get("net:bw_mbps") or 0.0)
         conns = int(redis.get("net:active_conns") or 0)
-    except RedisConnectionError:
+    except Exception:
         pps, bw, conns = 0, 0.0, 0
 
     # Fall back to something reasonable if empty
@@ -103,7 +109,7 @@ async def ws_alerts(ws: WebSocket) -> None:
         redis = get_redis()
         pubsub = redis.pubsub()
         pubsub.subscribe(settings.channel_live_alerts)
-    except RedisConnectionError:
+    except Exception:
         await ws.send_text(
             '{"error":"redis_unavailable","message":"Redis is not running; start it to receive live alerts."}'
         )
