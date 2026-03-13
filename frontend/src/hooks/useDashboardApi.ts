@@ -35,7 +35,10 @@ function env(name: string): string | undefined {
 function normalizeBaseUrl(value: string): string {
   // Avoid accidental double slashes when composing endpoint URLs.
   // Example: "https://api.example.com/" -> "https://api.example.com"
-  return value.replace(/\/+$/, '')
+  const trimmed = value.trim().replace(/\/+$/, '')
+  if (/^https?:\/\//i.test(trimmed)) return trimmed
+  // Common deployment footgun: user pastes "example.onrender.com" without protocol.
+  return `https://${trimmed}`
 }
 
 function apiBase(): string {
