@@ -35,9 +35,16 @@ def _parse_cors_list(value: str) -> list[str]:
 _cors_origins = _parse_cors_origins(settings.cors_allow_origins)
 _cors_allow_credentials = bool(settings.cors_allow_credentials) and _cors_origins != ["*"]
 
+# Demo-friendly default: if we're not using credentials/cookies, allow any Origin.
+# This avoids common deployment footguns where the frontend domain changes (Vercel previews, etc.).
+_cors_allow_origin_regex = None
+if not _cors_allow_credentials:
+    _cors_allow_origin_regex = ".*"
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
+    allow_origin_regex=_cors_allow_origin_regex,
     allow_credentials=_cors_allow_credentials,
     allow_methods=_parse_cors_list(settings.cors_allow_methods),
     allow_headers=_parse_cors_list(settings.cors_allow_headers),
@@ -82,6 +89,11 @@ def root() -> dict:
             "/ws/alerts",
         ],
     }
+
+
+@app.get("/healthz")
+def healthz() -> dict:
+    return {"ok": True}
 
 
 @app.get("/metrics")

@@ -32,8 +32,14 @@ function env(name: string): string | undefined {
   return typeof v === 'string' && v.length ? v : undefined
 }
 
+function normalizeBaseUrl(value: string): string {
+  // Avoid accidental double slashes when composing endpoint URLs.
+  // Example: "https://api.example.com/" -> "https://api.example.com"
+  return value.replace(/\/+$/, '')
+}
+
 function apiBase(): string {
-  return env('VITE_API_BASE_URL') ?? 'http://localhost:8000'
+  return normalizeBaseUrl(env('VITE_API_BASE_URL') ?? 'http://localhost:8000')
 }
 
 function wsUrl(): string {
