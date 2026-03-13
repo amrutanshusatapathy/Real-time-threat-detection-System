@@ -74,9 +74,12 @@ function coerceThreatType(value: string): ThreatType {
 function toThreatEvent(a: ApiAlert): ThreatEvent {
   const target = a.dst_ip ? `${a.dst_ip}${a.dst_port ? `:${a.dst_port}` : ''}` : 'unknown'
 
+  const ts = typeof a.ts === 'string' && a.ts.length ? a.ts : new Date().toISOString()
+  const safeTs = Number.isNaN(new Date(ts).getTime()) ? new Date().toISOString() : ts
+
   return {
     id: String(a.id),
-    ts: a.ts,
+    ts: safeTs,
     srcIp: a.src_ip,
     type: coerceThreatType(a.attack_type),
     severity: a.severity,

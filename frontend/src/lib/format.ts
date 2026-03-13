@@ -1,5 +1,6 @@
 export function formatTime(isoTs: string): string {
   const date = new Date(isoTs)
+  if (Number.isNaN(date.getTime())) return '--:--:--'
   return new Intl.DateTimeFormat(undefined, {
     hour: '2-digit',
     minute: '2-digit',
@@ -9,6 +10,7 @@ export function formatTime(isoTs: string): string {
 
 export function formatDateTime(isoTs: string): string {
   const date = new Date(isoTs)
+  if (Number.isNaN(date.getTime())) return '—'
   return new Intl.DateTimeFormat(undefined, {
     year: 'numeric',
     month: 'short',
