@@ -1,0 +1,67 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-threatd}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-threatd_password}
+      POSTGRES_DB: ${POSTGRES_DB:-threats}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "no"]
+
+  ml:
+    build:
+      context: .
+      dockerfile: ml_service/Dockerfile
+    environment:
+      MODELS_DIR: /models
+    ports:
+      - "9000:9000"
+    depends_on:
+      - redis
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg2://threatd:threatd_password@postgres:5432/threats}
+      ML_SERVICE_URL: ${ML_SERVICE_URL:-http://ml:9000}
+      CAPTURE_ENABLED: ${CAPTURE_ENABLED:-false}
+      CAPTURE_IFACE: ${CAPTURE_IFACE:-}
+    volumes:
+      - ./backend/data:/app/data
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+      - ml
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - backend
+      - ml
+
+volumes:
+  postgres_data:

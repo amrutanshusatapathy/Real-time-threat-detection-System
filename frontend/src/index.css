@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+::selection {
+  @apply bg-cyan-500/20 text-cyan-100;
+}
+
+/* Leaflet marker styling (used via L.divIcon html) */
+.threat-marker {
+  @apply h-3 w-3 rounded-full bg-red-500 ring-4 ring-red-500/20;
+}
+
+.panel-surface {
+  @apply rounded-xl border border-cyan-500/15 bg-slate-950/40 backdrop-blur;
+}

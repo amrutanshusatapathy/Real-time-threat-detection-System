@@ -1,0 +1,17 @@
+.env
+.env.*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Node
+node_modules/
+
+# Local data
+backend/data/
+
+# OS/editor
+.DS_Store
+.vscode/

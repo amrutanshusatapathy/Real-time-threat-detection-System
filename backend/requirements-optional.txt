@@ -1,0 +1,20 @@
+# Optional packages for extended IDS capabilities
+#
+# Notes:
+# - Suricata is not a Python package; install it separately if desired.
+# - TensorFlow/PyTorch wheels are platform/CPU/GPU specific; install manually.
+
+# PCAP parsing / packet feature extraction
+pyshark
+# dpkt is a fast pure-Python PCAP parser alternative
+dpkt
+
+# GeoIP resolution for attacker mapping
+geoip2
+
+# Class imbalance helpers (e.g., SMOTE)
+imbalanced-learn
+
+# Deep learning (install one of these manually as needed)
+# tensorflow
+# torch
