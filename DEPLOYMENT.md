@@ -116,6 +116,12 @@ Beginner (recommended): Render + Neon + Upstash
   - `CORS_ALLOW_ORIGINS` (your Netlify URL)
   - `CAPTURE_ENABLED=false` (cloud hosts can’t sniff packets)
 
+Notes about ML models on cloud:
+
+- This repo ignores `backend/data/` by default (so databases/models aren’t committed).
+- On first boot, the backend auto-generates demo models if `./data/models/*.joblib` is missing.
+- If you want to deploy your trained CICIDS2018 models, generate them locally and commit only the `*.joblib` files (or store them in object storage and download on startup).
+
 4) Point Netlify at the backend
 
 - In Netlify env vars, set `VITE_API_BASE_URL` to the Render service URL.

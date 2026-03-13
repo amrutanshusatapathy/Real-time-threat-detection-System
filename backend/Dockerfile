@@ -10,9 +10,8 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY app /app/app
 
-# Bundle default ML models into the image (optional, but makes cloud deploy easier).
-# If you retrain models, rebuild the image to include the new artifacts.
-COPY data/models /app/data/models
+# Create data directory (models will be generated on first boot if missing).
+RUN mkdir -p /app/data/models
 
 EXPOSE 8000
 

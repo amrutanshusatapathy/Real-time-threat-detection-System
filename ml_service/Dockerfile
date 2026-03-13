@@ -10,9 +10,8 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY app.py /app/app.py
 
-# Default models baked into the image for easy deployment.
-# If you want to override them locally, set MODELS_DIR and mount a volume.
-COPY backend/data/models /models
+# Models directory. If no models are present, the service will fall back to demo models.
+RUN mkdir -p /models
 
 EXPOSE 9000
 
